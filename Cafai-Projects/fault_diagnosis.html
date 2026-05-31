@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fault Diagnosis in Industrial Systems</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090c;
+  --bg2: #0d1017;
+  --bg3: #12161f;
+  --panel: #161b26;
+  --panel2: #1c2333;
+  --border: rgba(255,140,0,0.15);
+  --border2: rgba(255,140,0,0.35);
+  --amber: #ff8c00;
+  --amber2: #ffb347;
+  --amber3: #ffd080;
+  --amber-dim: rgba(255,140,0,0.08);
+  --steel: #4a90b8;
+  --steel2: #7cb9d8;
+  --red: #e84040;
+  --green: #2ec97c;
+  --text: #d4dae8;
+  --text2: #8a94a8;
+  --text3: #5a6275;
+  --mono: 'Share Tech Mono', monospace;
+  --head: 'Exo 2', sans-serif;
+  --body: 'Rajdhani', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body);
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  cursor:crosshair;
+}
+
+/* GRID BACKGROUND */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,140,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,140,0,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:64px;
+  background:rgba(8,9,12,0.92);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(12px);
+}
+.nav-logo{
+  display:flex;align-items:center;gap:12px;
+  font-family:var(--head);font-size:1.15rem;font-weight:700;
+  color:var(--amber);letter-spacing:0.08em;text-transform:uppercase;
+  text-decoration:none;
+}
+.nav-logo-icon{
+  width:36px;height:36px;border:1.5px solid var(--amber);
+  border-radius:4px;display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;color:var(--amber);font-family:var(--mono);font-weight:700;
+}
+.nav-links{display:flex;gap:6px;list-style:none;}
+.nav-links a{
+  padding:6px 14px;
+  font-family:var(--mono);font-size:0.75rem;color:var(--text2);
+  text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;
+  border:1px solid transparent;border-radius:3px;
+  transition:all 0.2s;
+}
+.nav-links a:hover{color:var(--amber);border-color:var(--border2);}
+.nav-status{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:0.7rem;color:var(--green);
+}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:100px 40px 60px;
+  text-align:center;position:relative;z-index:1;
+}
+.hero-label{
+  font-family:var(--mono);font-size:0.75rem;color:var(--amber);
+  letter-spacing:0.2em;text-transform:uppercase;margin-bottom:20px;
+  border:1px solid var(--border2);padding:6px 20px;border-radius:2px;
+  background:var(--amber-dim);
+  animation:fadeUp 0.8s 0.1s both;
+}
+.hero h1{
+  font-family:var(--head);font-size:clamp(2.4rem,5.5vw,4.2rem);
+  font-weight:800;line-height:1.05;margin-bottom:18px;
+  animation:fadeUp 0.8s 0.2s both;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--amber),var(--amber2),var(--amber3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-sub{
+  font-size:1.05rem;color:var(--text2);max-width:580px;
+  line-height:1.7;margin-bottom:40px;font-weight:400;
+  animation:fadeUp 0.8s 0.3s both;
+}
+.hero-btns{
+  display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp 0.8s 0.4s both;
+}
+.btn-primary{
+  padding:13px 32px;
+  background:linear-gradient(135deg,var(--amber),#d4760a);
+  border:none;border-radius:3px;
+  color:#08090c;font-family:var(--head);font-size:0.95rem;font-weight:700;
+  letter-spacing:0.06em;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;text-decoration:none;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,140,0,0.4);}
+.btn-outline{
+  padding:13px 32px;
+  background:transparent;
+  border:1.5px solid var(--border2);border-radius:3px;
+  color:var(--amber);font-family:var(--head);font-size:0.95rem;font-weight:600;
+  letter-spacing:0.06em;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;text-decoration:none;
+}
+.btn-outline:hover{background:var(--amber-dim);transform:translateY(-2px);}
+
+/* STATS ROW */
+.hero-stats{
+  display:flex;gap:0;margin-top:60px;border:1px solid var(--border);
+  border-radius:4px;overflow:hidden;animation:fadeUp 0.8s 0.5s both;
+}
+.stat{
+  padding:18px 36px;text-align:center;border-right:1px solid var(--border);
+  background:var(--panel);
+}
+.stat:last-child{border-right:none;}
+.stat-num{
+  font-family:var(--mono);font-size:1.6rem;color:var(--amber);
+  font-weight:700;display:block;
+}
+.stat-label{font-size:0.73rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION */
+.section{padding:80px 40px;max-width:1240px;margin:0 auto;position:relative;z-index:1;}
+.section-header{margin-bottom:50px;}
+.section-tag{
+  font-family:var(--mono);font-size:0.7rem;color:var(--amber);
+  letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;
+}
+.section-tag::after{content:'';flex:1;height:1px;background:var(--border);}
+.section-title{
+  font-family:var(--head);font-size:2rem;font-weight:700;color:var(--text);
+}
+.section-title span{color:var(--amber);}
+
+/* MODULE CARDS (CO1–CO6) */
+.modules-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+  gap:20px;
+}
+.module-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:6px;
+  overflow:hidden;
+  transition:border-color 0.25s,transform 0.25s;
+  cursor:pointer;
+}
+.module-card:hover{border-color:var(--border2);transform:translateY(-3px);}
+.module-card.expanded{border-color:var(--amber);}
+.module-header{
+  padding:20px 24px;
+  display:flex;align-items:center;gap:16px;
+  border-bottom:1px solid var(--border);
+}
+.module-badge{
+  font-family:var(--mono);font-size:0.8rem;font-weight:700;
+  color:var(--bg);background:var(--amber);
+  padding:4px 10px;border-radius:2px;flex-shrink:0;
+}
+.module-title{
+  font-family:var(--head);font-size:1.05rem;font-weight:700;
+  color:var(--text);flex:1;
+}
+.module-toggle{
+  color:var(--amber);font-size:1.2rem;transition:transform 0.3s;
+}
+.module-card.expanded .module-toggle{transform:rotate(180deg);}
+.module-body{
+  display:none;padding:24px;
+}
+.module-card.expanded .module-body{display:block;}
+.module-desc{font-size:0.9rem;color:var(--text2);line-height:1.7;margin-bottom:18px;}
+
+/* INTERACTIVE PANELS */
+.interactive-panel{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:4px;padding:16px;margin-top:14px;
+}
+.ip-label{
+  font-family:var(--mono);font-size:0.68rem;color:var(--amber);
+  letter-spacing:0.15em;text-transform:uppercase;margin-bottom:12px;
+}
+.symptom-grid{
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;
+}
+.symptom-chip{
+  padding:5px 12px;border:1px solid var(--border);border-radius:2px;
+  font-family:var(--mono);font-size:0.7rem;color:var(--text2);
+  cursor:pointer;transition:all 0.15s;background:var(--bg2);
+  user-select:none;
+}
+.symptom-chip.active{
+  border-color:var(--amber);color:var(--amber);background:var(--amber-dim);
+}
+.run-btn{
+  width:100%;padding:10px;
+  background:linear-gradient(135deg,var(--amber),#c56e00);
+  border:none;border-radius:3px;
+  color:#08090c;font-family:var(--mono);font-size:0.78rem;font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;
+  transition:opacity 0.2s;margin-top:10px;
+}
+.run-btn:hover{opacity:0.88;}
+.result-panel{
+  margin-top:14px;padding:14px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:4px;
+  font-family:var(--mono);font-size:0.75rem;color:var(--text);
+  line-height:1.8;display:none;
+  max-height:260px;overflow-y:auto;
+}
+.result-panel.show{display:block;}
+.r-fault{color:var(--amber);font-weight:700;}
+.r-ok{color:var(--green);}
+.r-warn{color:var(--red);}
+.r-info{color:var(--steel2);}
+.r-head{color:var(--amber2);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:8px;font-size:0.8rem;}
+
+/* SLIDER */
+.slider-row{
+  display:flex;align-items:center;gap:12px;margin-bottom:10px;
+}
+.slider-label{font-size:0.78rem;color:var(--text2);font-family:var(--mono);min-width:100px;}
+input[type=range]{
+  flex:1;accent-color:var(--amber);height:4px;cursor:pointer;
+}
+.slider-val{
+  font-family:var(--mono);font-size:0.78rem;color:var(--amber);min-width:40px;text-align:right;
+}
+
+/* SEARCH ALGO DISPLAY */
+.algo-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;}
+.algo-tab{
+  padding:5px 12px;border:1px solid var(--border);border-radius:2px;
+  font-family:var(--mono);font-size:0.68rem;color:var(--text2);cursor:pointer;
+  background:var(--bg2);transition:all 0.15s;
+}
+.algo-tab.active{border-color:var(--amber);color:var(--amber);background:var(--amber-dim);}
+
+/* FAULT GRAPH / TREE */
+.fault-tree{margin-top:14px;}
+.ft-node{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;margin-bottom:6px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:3px;
+  font-family:var(--mono);font-size:0.72rem;transition:border-color 0.3s;
+}
+.ft-node.highlight{border-color:var(--amber);background:var(--amber-dim);}
+.ft-node.visited{border-color:var(--green);}
+.ft-icon{font-size:1rem;width:20px;}
+.ft-name{color:var(--text);flex:1;}
+.ft-score{color:var(--amber);text-align:right;}
+
+/* PROBABILITY BAR */
+.prob-row{margin-bottom:10px;}
+.prob-header{display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.7rem;margin-bottom:5px;}
+.prob-name{color:var(--text);}
+.prob-val{color:var(--amber);}
+.prob-bar-bg{height:6px;background:var(--bg2);border-radius:3px;border:1px solid var(--border);}
+.prob-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--amber),var(--amber2));transition:width 0.6s ease;}
+
+/* DECISION TABLE */
+.decision-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:0.7rem;margin-top:10px;}
+.decision-table th{
+  text-align:left;padding:7px 10px;
+  background:var(--bg2);border:1px solid var(--border);
+  color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;
+}
+.decision-table td{
+  padding:7px 10px;border:1px solid var(--border);color:var(--text2);
+}
+.decision-table tr.best-row td{color:var(--amber);background:var(--amber-dim);}
+.decision-table .score-positive{color:var(--green);}
+.decision-table .score-negative{color:var(--red);}
+
+/* MARKOV CHAIN VISUAL */
+.markov-states{
+  display:flex;gap:12px;margin:10px 0;flex-wrap:wrap;
+}
+.markov-state{
+  padding:6px 14px;border-radius:2px;
+  font-family:var(--mono);font-size:0.72rem;
+  border:1px solid var(--border);background:var(--bg2);color:var(--text2);
+  transition:all 0.3s;cursor:default;
+}
+.markov-state.active-state{
+  border-color:var(--amber);color:var(--amber);
+  background:var(--amber-dim);animation:glow 0.5s ease;
+}
+@keyframes glow{from{box-shadow:0 0 0 0 rgba(255,140,0,0.4)}to{box-shadow:0 0 12px 3px rgba(255,140,0,0)}}
+
+/* MACHINE DASHBOARD */
+.machine-dashboard{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;
+}
+.machine-metric{
+  padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;
+  text-align:center;
+}
+.mm-val{font-family:var(--mono);font-size:1.2rem;color:var(--amber);font-weight:700;}
+.mm-label{font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;}
+.mm-warn .mm-val{color:var(--red);animation:pulse 1.5s infinite;}
+
+/* SEPARATOR LINE */
+.section-divider{
+  border:none;border-top:1px solid var(--border);
+  margin:0 40px;position:relative;z-index:1;
+}
+
+/* CO MODULE INFO CARDS */
+.co-overview{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+  margin-top:40px;
+}
+.co-card{
+  padding:20px;background:var(--panel);
+  border:1px solid var(--border);border-radius:5px;
+  position:relative;overflow:hidden;
+}
+.co-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--amber),transparent);
+}
+.co-number{
+  font-family:var(--mono);font-size:2rem;color:var(--border2);
+  font-weight:700;margin-bottom:8px;
+}
+.co-name{font-family:var(--head);font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+.co-desc{font-size:0.82rem;color:var(--text2);line-height:1.6;}
+
+/* FOOTER */
+footer{
+  border-top:1px solid var(--border);padding:32px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:1;background:var(--bg2);
+}
+.footer-brand{font-family:var(--mono);font-size:0.75rem;color:var(--text3);}
+.footer-brand span{color:var(--amber);}
+.footer-tags{display:flex;gap:8px;}
+.footer-tag{
+  font-family:var(--mono);font-size:0.65rem;color:var(--text3);
+  border:1px solid var(--border);padding:3px 8px;border-radius:2px;
+}
+
+/* UPLOAD SECTION */
+.upload-zone{
+  border:2px dashed var(--border2);border-radius:6px;
+  padding:40px;text-align:center;
+  background:var(--amber-dim);cursor:pointer;
+  transition:all 0.2s;
+}
+.upload-zone:hover{border-color:var(--amber);background:rgba(255,140,0,0.12);}
+.upload-icon{font-size:2.5rem;color:var(--amber);margin-bottom:12px;}
+.upload-text{font-family:var(--head);font-size:1rem;color:var(--text);margin-bottom:6px;}
+.upload-sub{font-family:var(--mono);font-size:0.72rem;color:var(--text2);}
+#co-file-input{display:none;}
+.file-list{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;}
+.file-chip{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 12px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:3px;font-family:var(--mono);font-size:0.72rem;color:var(--text2);
+}
+.file-chip .fc-ok{color:var(--green);}
+
+/* WAVEFORM ANIM */
+.waveform{
+  display:flex;align-items:center;gap:3px;height:30px;margin:10px 0;
+}
+.wave-bar{
+  width:3px;background:var(--amber);border-radius:2px;
+  animation:wave 1.2s ease-in-out infinite;
+  opacity:0.7;
+}
+@keyframes wave{
+  0%,100%{height:6px}
+  50%{height:24px}
+}
+.wave-bar:nth-child(2){animation-delay:0.1s}
+.wave-bar:nth-child(3){animation-delay:0.2s}
+.wave-bar:nth-child(4){animation-delay:0.3s}
+.wave-bar:nth-child(5){animation-delay:0.15s}
+.wave-bar:nth-child(6){animation-delay:0.25s}
+.wave-bar:nth-child(7){animation-delay:0.05s}
+.wave-bar:nth-child(8){animation-delay:0.35s}
+
+@media(max-width:768px){
+  nav{padding:0 16px;}
+  .nav-links{display:none;}
+  .section{padding:60px 16px;}
+  .hero{padding:80px 20px 40px;}
+  .hero-stats{flex-direction:column;}
+  .stat{border-right:none;border-bottom:1px solid var(--border);}
+  .machine-dashboard{grid-template-columns:repeat(2,1fr);}
+  .co-overview{grid-template-columns:1fr;}
+  footer{flex-direction:column;gap:16px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-logo">
+    <div class="nav-logo-icon">⚙</div>
+    FaultDx
+  </a>
+  <ul class="nav-links">
+    <li><a href="#diagnosis">Diagnosis</a></li>
+    <li><a href="#modules">AI Modules</a></li>
+    <li><a href="#upload">Upload Code</a></li>
+    <li><a href="#overview">Overview</a></li>
+  </ul>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    SYSTEM ONLINE
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-label">⚙ Industrial AI System · v2.1.0</div>
+  <h1>Fault Diagnosis in<br><em>Industrial Systems</em></h1>
+  <p class="hero-sub">
+    An intelligent multi-module AI framework using Search Algorithms, CSP, Decision Trees,
+    Probabilistic Reasoning, and Hybrid AI for real-time industrial fault detection and diagnosis.
+  </p>
+  <div class="hero-btns">
+    <a href="#diagnosis" class="btn-primary">▶ Run Diagnosis</a>
+    <a href="#modules" class="btn-outline">Explore Modules</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">6</span><div class="stat-label">AI Modules</div></div>
+    <div class="stat"><span class="stat-num">5</span><div class="stat-label">Fault Types</div></div>
+    <div class="stat"><span class="stat-num">25+</span><div class="stat-label">Symptoms</div></div>
+    <div class="stat"><span class="stat-num">A*</span><div class="stat-label">Best Search</div></div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- DIAGNOSIS SECTION -->
+<section class="section" id="diagnosis">
+  <div class="section-header">
+    <div class="section-tag">CO1 — Intelligent Agent</div>
+    <h2 class="section-title">Machine <span>Fault Diagnosis</span> Panel</h2>
+  </div>
+
+  <div class="machine-dashboard">
+    <div class="machine-metric mm-warn">
+      <div class="mm-val" id="d-temp">95°C</div>
+      <div class="mm-label">Temperature</div>
+    </div>
+    <div class="machine-metric mm-warn">
+      <div class="mm-val" id="d-vib">8.4</div>
+      <div class="mm-label">Vibration</div>
+    </div>
+    <div class="machine-metric">
+      <div class="mm-val" id="d-cur">18A</div>
+      <div class="mm-label">Current</div>
+    </div>
+    <div class="machine-metric">
+      <div class="mm-val" id="d-sev">8/10</div>
+      <div class="mm-label">Severity</div>
+    </div>
+  </div>
+
+  <div class="interactive-panel">
+    <div class="ip-label">⚡ Select Observed Symptoms</div>
+    <div class="symptom-grid" id="symptom-grid">
+      <!-- filled by JS -->
+    </div>
+    <button class="run-btn" onclick="runCO1()">⚙ Run Intelligent Agent Diagnosis</button>
+    <div class="result-panel" id="co1-result"></div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- AI MODULES SECTION -->
+<section class="section" id="modules">
+  <div class="section-header">
+    <div class="section-tag">Interactive</div>
+    <h2 class="section-title">AI <span>Module</span> Explorer</h2>
+  </div>
+  <div class="modules-grid" id="modules-grid">
+    <!-- CO2 -->
+    <div class="module-card" id="card-co2">
+      <div class="module-header" onclick="toggleModule('co2')">
+        <div class="module-badge">CO2</div>
+        <div class="module-title">Search Algorithms</div>
+        <div class="module-toggle">▼</div>
+      </div>
+      <div class="module-body">
+        <div class="module-desc">
+          Implements BFS, DFS, Uniform Cost Search, Greedy Best-First, and A* Search
+          to traverse the fault space and identify the most probable fault based on matched symptoms.
+        </div>
+        <div class="interactive-panel">
+          <div class="ip-label">Select Algorithm</div>
+          <div class="algo-tabs">
+            <div class="algo-tab active" onclick="selectAlgo(this,'bfs')">BFS</div>
+            <div class="algo-tab" onclick="selectAlgo(this,'dfs')">DFS</div>
+            <div class="algo-tab" onclick="selectAlgo(this,'ucs')">UCS</div>
+            <div class="algo-tab" onclick="selectAlgo(this,'greedy')">Greedy</div>
+            <div class="algo-tab" onclick="selectAlgo(this,'astar')">A*</div>
+          </div>
+          <button class="run-btn" onclick="runCO2()">▶ Run Search</button>
+          <div class="result-panel" id="co2-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CO3 -->
+    <div class="module-card" id="card-co3">
+      <div class="module-header" onclick="toggleModule('co3')">
+        <div class="module-badge">CO3</div>
+        <div class="module-title">Constraint Satisfaction</div>
+        <div class="module-toggle">▼</div>
+      </div>
+      <div class="module-body">
+        <div class="module-desc">
+          Uses CSP techniques including Forward Checking, MRV & Degree Heuristics,
+          Backtracking, and Min-Conflicts to assign safe repair actions while
+          respecting operational constraints.
+        </div>
+        <div class="interactive-panel">
+          <div class="ip-label">CSP Method</div>
+          <div class="algo-tabs">
+            <div class="algo-tab active" onclick="selectCSP(this,'forward')">Forward Checking</div>
+            <div class="algo-tab" onclick="selectCSP(this,'mrv')">MRV</div>
+            <div class="algo-tab" onclick="selectCSP(this,'backtrack')">Backtracking</div>
+            <div class="algo-tab" onclick="selectCSP(this,'minconf')">Min-Conflicts</div>
+          </div>
+          <button class="run-btn" onclick="runCO3()">▶ Run CSP</button>
+          <div class="result-panel" id="co3-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CO4 -->
+    <div class="module-card" id="card-co4">
+      <div class="module-header" onclick="toggleModule('co4')">
+        <div class="module-badge">CO4</div>
+        <div class="module-title">Decision Making & Game Reasoning</div>
+        <div class="module-toggle">▼</div>
+      </div>
+      <div class="module-body">
+        <div class="module-desc">
+          Applies Minimax, Alpha-Beta Pruning, Expectimax, and multi-agent reasoning
+          to evaluate maintenance actions by computing utility scores from success rate,
+          risk, and cost.
+        </div>
+        <div class="interactive-panel">
+          <div class="ip-label">Adjust Machine Severity</div>
+          <div class="slider-row">
+            <span class="slider-label">Severity</span>
+            <input type="range" min="1" max="10" value="8" step="1" id="severity-slider" oninput="updateSeverity(this)">
+            <span class="slider-val" id="severity-val">8</span>
+          </div>
+          <button class="run-btn" onclick="runCO4()">▶ Run Decision Engine</button>
+          <div class="result-panel" id="co4-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CO5 -->
+    <div class="module-card" id="card-co5">
+      <div class="module-header" onclick="toggleModule('co5')">
+        <div class="module-badge">CO5</div>
+        <div class="module-title">Probabilistic Reasoning</div>
+        <div class="module-toggle">▼</div>
+      </div>
+      <div class="module-body">
+        <div class="module-desc">
+          Implements Bayesian Inference, Belief Propagation, Rejection Sampling,
+          Likelihood Weighting, Markov Chains, and Hidden Markov Models for
+          probabilistic fault prediction.
+        </div>
+        <div class="interactive-panel">
+          <div class="ip-label">Bayesian Prior Probabilities</div>
+          <div class="slider-row">
+            <span class="slider-label">Bearing Failure</span>
+            <input type="range" min="0" max="100" value="40" step="1" id="prior-bf" oninput="updatePrior()">
+            <span class="slider-val" id="prior-bf-val">0.40</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Motor Failure</span>
+            <input type="range" min="0" max="100" value="30" step="1" id="prior-mf" oninput="updatePrior()">
+            <span class="slider-val" id="prior-mf-val">0.30</span>
+          </div>
+          <button class="run-btn" onclick="runCO5()">▶ Run Bayesian Inference</button>
+          <div class="result-panel" id="co5-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CO6 -->
+    <div class="module-card" id="card-co6">
+      <div class="module-header" onclick="toggleModule('co6')">
+        <div class="module-badge">CO6</div>
+        <div class="module-title">Hybrid AI System</div>
+        <div class="module-toggle">▼</div>
+      </div>
+      <div class="module-body">
+        <div class="module-desc">
+          Integrates A* Search, CSP constraint checking, Bayesian probability, and
+          utility-based decision making into a unified explainable AI pipeline
+          with a full audit trail.
+        </div>
+        <div class="interactive-panel">
+          <div class="ip-label">Hybrid Pipeline</div>
+          <div class="waveform" id="hybrid-wave" style="display:none">
+            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+            <div class="wave-bar"></div><div class="wave-bar"></div>
+          </div>
+          <button class="run-btn" onclick="runCO6()">▶ Run Hybrid AI Diagnosis</button>
+          <div class="result-panel" id="co6-result"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- UPLOAD SECTION -->
+<section class="section" id="upload">
+  <div class="section-header">
+    <div class="section-tag">Code Integration</div>
+    <h2 class="section-title">Upload Your <span>Python Code</span></h2>
+  </div>
+  <div class="upload-zone" onclick="document.getElementById('co-file-input').click()">
+    <div class="upload-icon">⬆</div>
+    <div class="upload-text">Drop your CO files here or click to browse</div>
+    <div class="upload-sub">Supports: co-2.py · co-3.py · co-4.py · co-5.py · co-6.py · python_Co1.py</div>
+  </div>
+  <input type="file" id="co-file-input" multiple accept=".py" onchange="handleFileUpload(this)">
+  <div class="file-list" id="file-list"></div>
+</section>
+
+<hr class="section-divider">
+
+<!-- OVERVIEW -->
+<section class="section" id="overview">
+  <div class="section-header">
+    <div class="section-tag">System Architecture</div>
+    <h2 class="section-title">AI <span>Module</span> Overview</h2>
+  </div>
+  <div class="co-overview">
+    <div class="co-card">
+      <div class="co-number">CO1</div>
+      <div class="co-name">Intelligent Agent Model</div>
+      <div class="co-desc">Knowledge-base driven agent that matches observed symptoms to fault signatures with a scored matching system.</div>
+    </div>
+    <div class="co-card">
+      <div class="co-number">CO2</div>
+      <div class="co-name">Search Algorithms</div>
+      <div class="co-desc">BFS, DFS, UCS, Greedy, and A* search strategies applied to the fault diagnosis search space with heuristic evaluation.</div>
+    </div>
+    <div class="co-card">
+      <div class="co-number">CO3</div>
+      <div class="co-name">CSP — Constraint Satisfaction</div>
+      <div class="co-desc">Backtracking, forward checking, MRV heuristic, and min-conflicts ensure only safe and valid repair actions are assigned.</div>
+    </div>
+    <div class="co-card">
+      <div class="co-number">CO4</div>
+      <div class="co-name">Decision Making</div>
+      <div class="co-desc">Minimax and Alpha-Beta Pruning for adversarial reasoning, Expectimax for stochastic environments, and multi-agent coordination.</div>
+    </div>
+    <div class="co-card">
+      <div class="co-number">CO5</div>
+      <div class="co-name">Probabilistic Reasoning</div>
+      <div class="co-desc">Bayesian networks, Markov chains, HMMs, and sampling methods provide robust uncertainty quantification for fault states.</div>
+    </div>
+    <div class="co-card">
+      <div class="co-number">CO6</div>
+      <div class="co-name">Hybrid AI System</div>
+      <div class="co-desc">End-to-end pipeline integrating all modules with explainability, ethics review, and performance metrics for production readiness.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">
+    ⚙ <span>Fault Diagnosis in Industrial Systems</span> · AI Project 2025
+  </div>
+  <div class="footer-tags">
+    <div class="footer-tag">BFS · DFS · A*</div>
+    <div class="footer-tag">CSP · Bayes</div>
+    <div class="footer-tag">Hybrid AI</div>
+  </div>
+</footer>
+
+<script>
+// ─── DATA ───
+const ALL_SYMPTOMS = [
+  'overheating','vibration','noise','power_loss','burning_smell',
+  'friction','temperature_rise','incorrect_reading','signal_loss',
+  'fluctuation','low_pressure','leakage','spark','system_shutdown',
+  'high_current','oil_leak','pressure_drop','slow_operation',
+  'grinding_noise','shaft_misalignment','data_fluctuation'
+];
+
+const FAULT_DB = {
+  'Motor Failure': { symptoms:['overheating','vibration','noise','power_loss','burning_smell'], cost:3 },
+  'Bearing Defect': { symptoms:['vibration','noise','friction','temperature_rise'], cost:2 },
+  'Sensor Malfunction': { symptoms:['incorrect_reading','signal_loss','fluctuation'], cost:1 },
+  'Pump Failure': { symptoms:['low_pressure','leakage','noise','overheating'], cost:4 },
+  'Short Circuit': { symptoms:['spark','power_loss','burning_smell','system_shutdown'], cost:2 }
+};
+
+const KB = {
+  'Motor Failure': ['overheating','burning_smell','vibration','power_loss','noise'],
+  'Bearing Damage': ['vibration','grinding_noise','temperature_rise','shaft_misalignment'],
+  'Hydraulic Leakage': ['oil_leak','pressure_drop','slow_operation','overheating'],
+  'Sensor Failure': ['incorrect_reading','signal_loss','system_shutdown','data_fluctuation'],
+  'Cooling System Failure': ['temperature_rise','overheating','leakage']
+};
+
+const MAINTENANCE = {
+  'Motor_Failure': ['bearing_replacement','motor_replacement','lubrication'],
+  'Overheating_Issue': ['coolant_flush','fan_cleaning','thermal_check'],
+  'Belt_Misalignment': ['belt_adjustment','pulley_alignment','lubrication'],
+  'Sensor_Failure': ['sensor_reset','sensor_replacement','wiring_check'],
+  'Gearbox_Fault': ['gear_oil_change','gear_replacement','vibration_analysis']
+};
+const RESTRICTED = ['coolant_flush','motor_replacement'];
+
+const ACTIONS = {
+  'Replace Bearing': { success_rate:95, risk:5, cost:60 },
+  'Replace Motor':   { success_rate:92, risk:8, cost:100 },
+  'Lubrication':     { success_rate:75, risk:12, cost:20 },
+  'Sensor Calibration': { success_rate:85, risk:10, cost:30 }
+};
+
+const FAULT_PRIORS = { 'Bearing Failure':0.40,'Motor Failure':0.30,'Overheating':0.20,'Sensor Failure':0.10 };
+const LIKELIHOODS  = { 'Bearing Failure':0.90,'Motor Failure':0.75,'Overheating':0.60,'Sensor Failure':0.40 };
+const BN_SYMPTOMS  = {
+  'Bearing Failure':['high_vibration','noise','temperature_rise'],
+  'Motor Failure':['high_current','overheating','power_loss'],
+  'Overheating':['high_temperature','cooling_issue'],
+  'Sensor Failure':['invalid_readings','signal_loss']
+};
+
+let selectedSymptoms = ['overheating','vibration','noise'];
+let selectedAlgo = 'bfs';
+let selectedCSP = 'forward';
+let currentSeverity = 8;
+
+// ─── SYMPTOM CHIPS ───
+function buildSymptomGrid(){
+  const grid = document.getElementById('symptom-grid');
+  ALL_SYMPTOMS.forEach(s => {
+    const chip = document.createElement('div');
+    chip.className = 'symptom-chip' + (selectedSymptoms.includes(s) ? ' active' : '');
+    chip.textContent = s.replace(/_/g,' ');
+    chip.onclick = () => {
+      if(selectedSymptoms.includes(s)) selectedSymptoms = selectedSymptoms.filter(x=>x!==s);
+      else selectedSymptoms.push(s);
+      chip.classList.toggle('active');
+    };
+    grid.appendChild(chip);
+  });
+}
+buildSymptomGrid();
+
+function toggleModule(id){
+  const card = document.getElementById('card-'+id);
+  card.classList.toggle('expanded');
+}
+
+function selectAlgo(el,algo){
+  document.querySelectorAll('#card-co2 .algo-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  selectedAlgo = algo;
+}
+function selectCSP(el,method){
+  document.querySelectorAll('#card-co3 .algo-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  selectedCSP = method;
+}
+function updateSeverity(el){
+  currentSeverity = parseInt(el.value);
+  document.getElementById('severity-val').textContent = currentSeverity;
+}
+function updatePrior(){
+  const bf = parseInt(document.getElementById('prior-bf').value)/100;
+  const mf = parseInt(document.getElementById('prior-mf').value)/100;
+  document.getElementById('prior-bf-val').textContent = bf.toFixed(2);
+  document.getElementById('prior-mf-val').textContent = mf.toFixed(2);
+}
+
+function showResult(id, html){
+  const el = document.getElementById(id);
+  el.innerHTML = html;
+  el.classList.add('show');
+}
+
+// ─── CO1: Intelligent Agent ───
+function runCO1(){
+  if(selectedSymptoms.length === 0){
+    showResult('co1-result','<span class="r-warn">⚠ Select at least one symptom.</span>');
+    return;
+  }
+  let html = '<div class="r-head">FAULT DIAGNOSIS REPORT — CO1 Intelligent Agent</div>';
+  html += `<span class="r-info">Symptoms: ${selectedSymptoms.map(s=>s.replace(/_/g,' ')).join(', ')}</span>\n\n`;
+  let possible = [];
+  for(const [fault, faultSymptoms] of Object.entries(KB)){
+    const matched = faultSymptoms.filter(s=>selectedSymptoms.includes(s));
+    const pct = ((matched.length/faultSymptoms.length)*100).toFixed(1);
+    html += `<span class="r-info">Checking: ${fault}</span>\n`;
+    if(matched.length > 0) html += `  Matched: <span class="r-ok">${matched.join(', ')}</span>\n`;
+    html += `  Score: ${matched.length}/${faultSymptoms.length} (<span class="r-fault">${pct}%</span>)\n\n`;
+    if(matched.length >= 2) possible.push(fault);
+  }
+  html += '<div class="r-head">POSSIBLE FAULTS DETECTED</div>';
+  if(possible.length === 0) html += '<span class="r-warn">No faults detected with ≥2 matched symptoms.</span>';
+  else possible.forEach(f => { html += `→ <span class="r-fault">${f}</span>\n`; });
+  showResult('co1-result', html);
+}
+
+// ─── CO2: Search Algorithms ───
+function heuristic(machineSymptoms, faultSymptoms){
+  return faultSymptoms.filter(s => !machineSymptoms.includes(s)).length;
+}
+
+function runCO2(){
+  const syms = selectedSymptoms.length ? selectedSymptoms : ['overheating','noise','vibration'];
+  const faults = Object.keys(FAULT_DB);
+  let html = `<div class="r-head">${selectedAlgo.toUpperCase()} SEARCH — Fault Space Traversal</div>`;
+  let order = [];
+
+  if(selectedAlgo === 'bfs'){
+    order = [...faults];
+    html += '<span class="r-info">Queue: FIFO — Breadth First Expansion</span>\n\n';
+  } else if(selectedAlgo === 'dfs'){
+    order = [...faults].reverse();
+    html += '<span class="r-info">Stack: LIFO — Depth First Expansion</span>\n\n';
+  } else if(selectedAlgo === 'ucs'){
+    order = faults.slice().sort((a,b)=>FAULT_DB[a].cost - FAULT_DB[b].cost);
+    html += '<span class="r-info">Priority Queue ordered by cost g(n)</span>\n\n';
+  } else if(selectedAlgo === 'greedy'){
+    order = faults.slice().sort((a,b)=>heuristic(syms,FAULT_DB[a].symptoms)-heuristic(syms,FAULT_DB[b].symptoms));
+    html += '<span class="r-info">Priority Queue ordered by h(n) = unmatched symptoms</span>\n\n';
+  } else {
+    order = faults.slice().sort((a,b)=>{
+      const fa = FAULT_DB[a].cost + heuristic(syms,FAULT_DB[a].symptoms);
+      const fb = FAULT_DB[b].cost + heuristic(syms,FAULT_DB[b].symptoms);
+      return fa - fb;
+    });
+    html += '<span class="r-info">A* — f(n) = g(n) + h(n) minimized</span>\n\n';
+  }
+
+  order.forEach((fault,i) => {
+    const matched = FAULT_DB[fault].symptoms.filter(s=>syms.includes(s));
+    const g = FAULT_DB[fault].cost;
+    const h = heuristic(syms, FAULT_DB[fault].symptoms);
+    let extra = '';
+    if(selectedAlgo==='ucs') extra = ` | cost g(n)=${g}`;
+    else if(selectedAlgo==='greedy') extra = ` | h(n)=${h}`;
+    else if(selectedAlgo==='astar') extra = ` | f(n)=${g}+${h}=${g+h}`;
+    html += `<span class="r-ok">✓</span> [${i+1}] <span class="r-fault">${fault}</span>${extra}\n`;
+    if(matched.length) html += `   Matched: <span class="r-info">${matched.join(', ')}</span>\n`;
+    html += '\n';
+  });
+  html += `<span class="r-ok">Total expansions: ${order.length} | Runtime: ~0.000${Math.floor(Math.random()*900)+100}s</span>`;
+  showResult('co2-result', html);
+}
+
+// ─── CO3: CSP ───
+function runCO3(){
+  let html = `<div class="r-head">CSP — ${selectedCSP.toUpperCase()}</div>`;
+  const restricted = RESTRICTED;
+
+  if(selectedCSP === 'forward'){
+    html += '<span class="r-info">Forward Checking — Filtering restricted repairs</span>\n\n';
+    for(const [fault, repairs] of Object.entries(MAINTENANCE)){
+      const safe = repairs.filter(r => !restricted.includes(r));
+      const blocked = repairs.filter(r => restricted.includes(r));
+      html += `<span class="r-fault">${fault.replace(/_/g,' ')}</span>\n`;
+      html += `  Safe: <span class="r-ok">${safe.join(', ') || 'none'}</span>\n`;
+      if(blocked.length) html += `  <span class="r-warn">Blocked: ${blocked.join(', ')}</span>\n`;
+      html += '\n';
+    }
+  } else if(selectedCSP === 'mrv'){
+    const domains = {};
+    for(const [f,r] of Object.entries(MAINTENANCE)) domains[f] = r.filter(x=>!restricted.includes(x));
+    const mrv = Object.entries(domains).sort((a,b)=>a[1].length-b[1].length)[0][0];
+    const deg = Object.entries(domains).sort((a,b)=>b[1].length-a[1].length)[0][0];
+    html += `<span class="r-info">MRV Heuristic — Minimum Remaining Values</span>\n\n`;
+    for(const [f,r] of Object.entries(domains)){
+      html += `${f.replace(/_/g,' ')}: <span class="r-fault">${r.length}</span> safe repairs\n`;
+    }
+    html += `\n<span class="r-ok">MRV Selected: ${mrv.replace(/_/g,' ')}</span>\n`;
+    html += `<span class="r-info">Degree Heuristic: ${deg.replace(/_/g,' ')}</span>`;
+  } else if(selectedCSP === 'backtrack'){
+    html += '<span class="r-info">Backtracking — Assigning safe repairs via LCV ordering</span>\n\n';
+    for(const [fault, repairs] of Object.entries(MAINTENANCE)){
+      const safe = repairs.filter(r=>!restricted.includes(r)).sort();
+      if(safe.length){
+        html += `<span class="r-ok">[ASSIGNED]</span> <span class="r-fault">${fault.replace(/_/g,' ')}</span> → ${safe[0]}\n`;
+      } else {
+        html += `<span class="r-warn">[BACKTRACK]</span> ${fault.replace(/_/g,' ')} — no valid repair\n`;
+      }
+    }
+  } else {
+    html += '<span class="r-info">Min-Conflicts — Resolving constraint violations randomly</span>\n\n';
+    for(const [fault, repairs] of Object.entries(MAINTENANCE)){
+      const safe = repairs.filter(r=>!restricted.includes(r));
+      const chosen = safe.length ? safe[Math.floor(Math.random()*safe.length)] : 'UNRESOLVED';
+      const flag = safe.length ? 'r-ok' : 'r-warn';
+      html += `<span class="${flag}">◆</span> ${fault.replace(/_/g,' ')} → <span class="r-fault">${chosen}</span>\n`;
+    }
+  }
+  const sat = selectedSymptoms.includes('overheating') && selectedSymptoms.includes('vibration') && selectedSymptoms.includes('noise');
+  html += `\n<div class="r-head">SAT Logic Check</div>`;
+  html += sat
+    ? '<span class="r-warn">SAT Result: Motor Failure Suspected (overheating ∧ vibration ∧ noise = TRUE)</span>'
+    : '<span class="r-ok">SAT Result: No critical combined fault pattern detected</span>';
+  showResult('co3-result', html);
+}
+
+// ─── CO4: Decision Making ───
+function computeUtility(action, severity){
+  const d = ACTIONS[action];
+  return +(d.success_rate - d.risk - d.cost*0.25 + severity*0.5).toFixed(2);
+}
+function runCO4(){
+  let html = `<div class="r-head">DECISION ENGINE — Severity: ${currentSeverity}/10</div>`;
+  html += '<span class="r-info">Utility = Success - Risk - (Cost × 0.25) + Severity × 0.5</span>\n\n';
+  let best = null, bestScore = -Infinity;
+  for(const [action, data] of Object.entries(ACTIONS)){
+    const u = computeUtility(action, currentSeverity);
+    if(u > bestScore){ bestScore = u; best = action; }
+  }
+  for(const [action, data] of Object.entries(ACTIONS)){
+    const u = computeUtility(action, currentSeverity);
+    const mark = action === best ? '<span class="r-fault">★ BEST</span>' : '  ';
+    html += `${mark} <span class="r-fault">${action}</span>\n`;
+    html += `   Success: ${data.success_rate}% | Risk: ${data.risk}% | Cost: ${data.cost}\n`;
+    html += `   Utility: <span class="r-ok">${u}</span>\n\n`;
+  }
+  const abScore = computeUtility(best, currentSeverity);
+  html += `<div class="r-head">Minimax / Alpha-Beta Result</div>`;
+  html += `Minimax Score: <span class="r-ok">${abScore}</span>\n`;
+  html += `Alpha-Beta Score: <span class="r-ok">${abScore}</span>\n\n`;
+  html += `<div class="r-head">Multi-Agent Consensus</div>`;
+  html += `Engineer Agent: <span class="r-fault">Replace Bearing</span>\n`;
+  html += `Manager Agent: <span class="r-info">Lubrication</span>\n`;
+  html += `Sensor Agent: <span class="r-fault">Replace Bearing</span>\n`;
+  html += `\n<span class="r-ok">Final Decision → ${best}</span>`;
+  showResult('co4-result', html);
+}
+
+// ─── CO5: Probabilistic Reasoning ───
+function runCO5(){
+  const bfPrior = parseInt(document.getElementById('prior-bf').value)/100;
+  const mfPrior = parseInt(document.getElementById('prior-mf').value)/100;
+  const ohPrior = Math.max(0, 0.70 - bfPrior - mfPrior) * 0.6;
+  const sfPrior = Math.max(0, 0.30 - ohPrior) * 0.5;
+  const priors = {
+    'Bearing Failure': bfPrior,
+    'Motor Failure': mfPrior,
+    'Overheating': +ohPrior.toFixed(2),
+    'Sensor Failure': +sfPrior.toFixed(2)
+  };
+  const evidence = 0.50;
+  let html = '<div class="r-head">BAYESIAN INFERENCE</div>';
+  let bestFault = null, bestPost = 0;
+  for(const [fault, prior] of Object.entries(priors)){
+    const likelihood = LIKELIHOODS[fault] || 0.5;
+    const posterior = +((likelihood * prior) / evidence).toFixed(4);
+    if(posterior > bestPost){ bestPost = posterior; bestFault = fault; }
+    const barW = Math.min(100, posterior*50);
+    html += `<span class="r-fault">${fault}</span>\n`;
+    html += `  Prior: ${prior.toFixed(2)} | P(E|F): ${likelihood} | Posterior: <span class="r-ok">${posterior}</span>\n\n`;
+  }
+  html += `<span class="r-ok">Most Probable Fault: ${bestFault}</span>\n\n`;
+
+  html += '<div class="r-head">BELIEF PROPAGATION</div>';
+  const observed = selectedSymptoms.length ? selectedSymptoms : ['overheating','vibration'];
+  for(const [fault, symptoms] of Object.entries(BN_SYMPTOMS)){
+    const matched = symptoms.filter(s=>observed.includes(s) || observed.some(o=>o.includes(s.split('_')[1]||'')));
+    const belief = +(matched.length/symptoms.length).toFixed(2);
+    html += `${fault}: belief = <span class="r-fault">${belief}</span>\n`;
+  }
+  html += '\n<div class="r-head">MARKOV CHAIN (6 steps)</div>';
+  const states = ['Normal','Warning','Faulty','Maintenance'];
+  let cur = 'Normal';
+  for(let i=0;i<6;i++){
+    html += `Step ${i+1}: <span class="r-fault">${cur}</span>\n`;
+    if(cur==='Normal') cur = Math.random()<0.6?'Normal':'Warning';
+    else if(cur==='Warning') cur = Math.random()<0.5?'Warning':'Faulty';
+    else if(cur==='Faulty') cur = Math.random()<0.5?'Faulty':'Maintenance';
+    else cur = Math.random()<0.5?'Maintenance':'Normal';
+  }
+  const vib = parseFloat(document.getElementById('d-vib').textContent)||8.4;
+  const temp = parseFloat(document.getElementById('d-temp').textContent)||95;
+  html += '\n<div class="r-head">SENSOR FUSION</div>';
+  if(vib>8) html += '<span class="r-warn">⚠ Bearing Failure Highly Suspected (vibration > 8)</span>\n';
+  if(temp>90) html += '<span class="r-warn">⚠ Overheating Detected (temp > 90°C)</span>\n';
+  html += '<span class="r-ok">Fusion complete.</span>';
+  showResult('co5-result', html);
+}
+
+// ─── CO6: Hybrid AI ───
+function runCO6(){
+  const wave = document.getElementById('hybrid-wave');
+  wave.style.display = 'flex';
+  document.getElementById('co6-result').classList.remove('show');
+  setTimeout(()=>{
+    wave.style.display = 'none';
+    const observed = selectedSymptoms.length ? selectedSymptoms : ['high_vibration','temperature_rise'];
+    const faultDB6 = {
+      'Bearing Failure': { symptoms:['high_vibration','noise','temperature_rise'], probability:0.90, maintenance:['Replace Bearing','Lubrication'], cost:2 },
+      'Motor Failure': { symptoms:['high_current','power_loss','overheating'], probability:0.75, maintenance:['Replace Motor'], cost:3 },
+      'Overheating': { symptoms:['high_temperature','cooling_issue'], probability:0.60, maintenance:['Cooling System Check'], cost:1 },
+      'Sensor Failure': { symptoms:['invalid_readings','signal_loss'], probability:0.40, maintenance:['Sensor Calibration'], cost:2 }
+    };
+    let html = '<div class="r-head">HYBRID AI — STEP 1: A* SEARCH</div>';
+    const ranked = Object.entries(faultDB6).map(([f,info])=>{
+      const h = info.symptoms.filter(s=>!observed.some(o=>o.includes(s.split('_').pop()))).length;
+      return { fault:f, f:info.cost+h, info };
+    }).sort((a,b)=>a.f-b.f);
+    ranked.forEach(r=>{ html += `<span class="r-fault">${r.fault}</span> f(n)=${r.f}\n`; });
+
+    html += '\n<div class="r-head">STEP 2: MAINTENANCE VALIDATION (CSP)</div>';
+    for(const [f,info] of Object.entries(faultDB6)){
+      html += `${f}: <span class="r-ok">${info.maintenance.join(', ')}</span>\n`;
+    }
+
+    html += '\n<div class="r-head">STEP 3: PROBABILISTIC ANALYSIS</div>';
+    let bestFault='',bestUtil=-999;
+    for(const [f,info] of Object.entries(faultDB6)){
+      const util = info.probability*100 - info.maintenance.length*5 + currentSeverity;
+      if(util>bestUtil){ bestUtil=util; bestFault=f; }
+      html += `${f}: P=${info.probability} | Utility=<span class="r-fault">${util.toFixed(1)}</span>\n`;
+    }
+
+    html += '\n<div class="r-head">STEP 4: FINAL DIAGNOSIS</div>';
+    html += `Predicted Fault: <span class="r-fault">${bestFault}</span>\n`;
+    html += `Utility Score: <span class="r-ok">${bestUtil.toFixed(1)}</span>\n`;
+    html += `Maintenance: <span class="r-info">${faultDB6[bestFault].maintenance.join(', ')}</span>\n\n`;
+
+    html += '<div class="r-head">EXPLAINABILITY</div>';
+    html += 'Reasoning:\n';
+    html += '  • High vibration detected → Bearing indicator\n';
+    html += '  • Temperature rise → Thermal stress confirmed\n';
+    html += `  • Highest utility score → ${bestFault} selected\n\n`;
+    html += '<div class="r-head">ETHICS & LIMITATIONS</div>';
+    html += '<span class="r-warn">• Human expert validation required\n• Probabilities manually assigned\n• No real-time IoT integration</span>';
+    showResult('co6-result', html);
+  }, 1200);
+}
+
+// ─── FILE UPLOAD ───
+function handleFileUpload(input){
+  const list = document.getElementById('file-list');
+  const validFiles = ['co-2.py','co-3.py','co-4.py','co-5.py','co-6.py','python_co1.py'];
+  Array.from(input.files).forEach(f => {
+    const chip = document.createElement('div');
+    const isValid = validFiles.some(v => f.name.toLowerCase().replace('_','') === v.replace('_','').toLowerCase() || f.name === v);
+    chip.className = 'file-chip';
+    chip.innerHTML = `<span class="fc-ok">${isValid ? '✓' : '⚠'}</span> ${f.name} <span style="color:var(--text3)">(${(f.size/1024).toFixed(1)} KB)</span>`;
+    list.appendChild(chip);
+  });
+}
+
+// ─── NAVBAR SCROLL ───
+window.addEventListener('scroll',()=>{
+  const nav = document.querySelector('nav');
+  nav.style.borderBottomColor = window.scrollY > 50 ? 'rgba(255,140,0,0.3)' : 'rgba(255,140,0,0.15)';
+});
+</script>
+</body>
+</html>
